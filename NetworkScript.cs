@@ -14,7 +14,7 @@ public class NetworkScript : MonoBehaviour {
 	//variables for bot selector
 	private float selectorSize;
 	private float selectorGap;
-	public bool[] selected;
+	private bool[] selected;
 
 	//The game is running or not
 	public bool running;	
@@ -55,6 +55,7 @@ public class NetworkScript : MonoBehaviour {
 	public Texture[] rowTextures;
 
 	void Start(){
+		//a bool for each bot, if false the player can't view that bots control page
 		selected=new bool[4];
 		//Calculates variables for control page
 		//Determins the button size using screen variables
@@ -200,14 +201,20 @@ public class NetworkScript : MonoBehaviour {
 			if(Network.isClient){
 				//Main menu
 				if(levelNum==0){
+					//Sets the skin to remove all button and label textures
 					GUI.skin=Skins[0];
+					//Makes the background orange/yellow
+					Camera.main.backgroundColor = backgrounds[2];
 
+					//draws the semi transparent textures over the background
 					GUI.DrawTexture(new Rect(0,Screen.height/5,Screen.width,Screen.height-(Screen.height/5)*2),Background[0]);
 					GUI.DrawTexture(new Rect(0,Screen.height-Screen.height/5,Screen.width,Screen.height/5),Background[1]);
 
+					//The back button(No function currently)
 					GUI.DrawTexture(new Rect(boarder/2,gap/2,buttonSize,buttonSize),ButtonBackground[2]);
 					GUI.DrawTexture(new Rect(boarder/2,gap/2,buttonSize,buttonSize),Background[6]);
 
+					//These four buttons alow the player to select/deselect the bots they wish to control
 					GUI.DrawTexture(new Rect(Screen.width/2-selectorSize-selectorGap/2,Screen.height/2-selectorSize-selectorGap/2,selectorSize,selectorSize),ButtonBackground[5]);
 					if(GUI.Button(new Rect(Screen.width/2-selectorSize-selectorGap/2,Screen.height/2-selectorSize-selectorGap/2,selectorSize,selectorSize),""))
 					{
@@ -232,14 +239,15 @@ public class NetworkScript : MonoBehaviour {
 						selected[2]=!selected[2];
 					}
 
+					//The text for the bot selection page
 					Skins[0].label.fontSize=Mathf.RoundToInt(Screen.height*0.075f);
 					GUI.Label(new Rect(0,0,Screen.width,Screen.height/5),"Character Selection");
 					Skins[0].label.fontSize=Mathf.RoundToInt(Screen.height*0.05f);
 					GUI.Label(new Rect(0,Screen.height-Screen.height/10,Screen.width,Screen.height/10),"My Character");
 					Skins[0].label.fontSize=Mathf.RoundToInt(Screen.height*0.04f);
 
+					//The ready button, can't be pressed unles at least one bot has been selected
 					GUI.DrawTexture(new Rect(Screen.width-(selectorSize+selectorGap/2),Screen.height-(selectorSize+selectorGap/2),selectorSize,selectorSize),ButtonBackground[4]);
-
 					if(GUI.Button(new Rect(Screen.width-(selectorSize+selectorGap/2),Screen.height-(selectorSize+selectorGap/2),selectorSize,selectorSize),"Confirm"))
 					{	
 						if (selected[0]||selected[1]||selected[2]||selected[3])
@@ -251,14 +259,20 @@ public class NetworkScript : MonoBehaviour {
 				}
 				//Sequencer menu
 				else{
+					//Sets the skin to remover textures from the buttons and labels
 					GUI.skin=Skins[0];
+
+					//draws the semi transparent boxes over the background
 					GUI.DrawTexture(new Rect((gap+boarder)/2+buttonSize,0,Screen.width,buttonSize+gap),Background[0]);	
 					GUI.DrawTexture(new Rect(0,0,(gap+boarder)/2+buttonSize,Screen.height-(2* buttonSize+2*gap)),Background[0]);
 					GUI.DrawTexture(new Rect(0,Screen.height-(2* buttonSize+2*gap),Screen.width,2* buttonSize+2.5f*gap),Background[1]);
-					//Number of rows to display depending on selected bot
+
+					//Number of rows to display depending on selected bot(will be removed later as all are consistant)
 					noRows = botRows[currentBot];
+
 					//Set the background colour to the colour of the bot
 					Camera.main.backgroundColor = backgrounds[currentBot];
+
 					//Go back to main menu
 					GUI.DrawTexture(new Rect(boarder/2,gap/2,buttonSize,buttonSize),ButtonBackground[2]);
 					GUI.DrawTexture(new Rect(boarder/2,gap/2,buttonSize,buttonSize),Background[6]);
@@ -292,21 +306,23 @@ public class NetworkScript : MonoBehaviour {
 						{Setting[n][i] = false;}
 						}
 					}
+
+					//Advances the current page
 					GUI.DrawTexture(new Rect((buttonSize+gap)*noColumns+boarder/2,Screen.height-buttonSize*2-1.5f*gap,buttonSize,buttonSize),ButtonBackground[2]);
 					GUI.DrawTexture(new Rect((buttonSize+gap)*noColumns+boarder/2,Screen.height-buttonSize*2-1.5f*gap,buttonSize,buttonSize),Background[5]);
-					//Advances the current page
 					if(GUI.Button(new Rect((buttonSize+gap)*noColumns+boarder/2,Screen.height-buttonSize*2-1.5f*gap,buttonSize,buttonSize),"")){
 						if(windowNum<39)
 							windowNum++;
 					}
+;
+					//Go back a page
 					GUI.DrawTexture(new Rect((buttonSize+gap)*(noColumns -1)+boarder/2,Screen.height-buttonSize*2-1.5f*gap,buttonSize,buttonSize),ButtonBackground[2]);
 					GUI.DrawTexture(new Rect((buttonSize+gap)*(noColumns -1)+boarder/2,Screen.height-buttonSize*2-1.5f*gap,buttonSize,buttonSize),Background[4]);
-					//Go back a page
 					if(GUI.Button(new Rect((buttonSize+gap)*(noColumns -1)+boarder/2,Screen.height-buttonSize*2-1.5f*gap,buttonSize,buttonSize),"")){
 						if(windowNum>0)
 							windowNum--; 
 					}
-					GUI.skin=Skins[1];
+
 					//Goes through each input button
 					for (int n=0;n<noRows;n++){
 						for(int i=0;i<noColumns;i++){
@@ -332,15 +348,18 @@ public class NetworkScript : MonoBehaviour {
 							GUI.DrawTexture(new Rect((buttonSize+gap)*(i+1)+boarder/2,(buttonSize+gap)*(n+1)+0.5f*gap,buttonSize,buttonSize),active);
 						}
 					}	
-					GUI.skin=Skins[0];
+
 					//Display the names of each row
 					for(int n=0;n<noRows;n++){
 						int botBuffer = botStarts[currentBot]/600;
 						GUI.DrawTexture(new Rect(boarder/2,(buttonSize+gap)*(n+1)+gap/2,buttonSize,buttonSize),rowTextures[n]);
 					}
+
+					//Displays the number of each column
 					for(int i=0;i<noColumns;i++){
 						GUI.Label(new Rect((buttonSize+gap)*(i+1)+boarder/2,gap/2,buttonSize,buttonSize),""+(windowNum*noColumns+1+i));
 					}
+
 					//Show each bot and allow the user to change between them
 					GUI.DrawTexture(new Rect(Screen.width/2-buttonSize-gap/2,Screen.height-(buttonSize+gap)*2+0.5f*gap,buttonSize,buttonSize),ButtonBackground[5]);
 					if(GUI.Button(new Rect(Screen.width/2-buttonSize-gap/2,Screen.height-(buttonSize+gap)*2+0.5f*gap,buttonSize,buttonSize),"")&&selected[0])
