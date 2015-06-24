@@ -14,6 +14,7 @@ public class NetworkScript : MonoBehaviour {
 	//variables for bot selector
 	private float selectorSize;
 	private float selectorGap;
+	public bool[] selected;
 
 	//The game is running or not
 	public bool running;	
@@ -54,6 +55,7 @@ public class NetworkScript : MonoBehaviour {
 	public Texture[] rowTextures;
 
 	void Start(){
+		selected=new bool[4];
 		//Calculates variables for control page
 		//Determins the button size using screen variables
 		if ( Screen.dpi == 0 ) { buttonSize = 100; }
@@ -209,22 +211,25 @@ public class NetworkScript : MonoBehaviour {
 					GUI.DrawTexture(new Rect(Screen.width/2-selectorSize-selectorGap/2,Screen.height/2-selectorSize-selectorGap/2,selectorSize,selectorSize),ButtonBackground[5]);
 					if(GUI.Button(new Rect(Screen.width/2-selectorSize-selectorGap/2,Screen.height/2-selectorSize-selectorGap/2,selectorSize,selectorSize),""))
 					{
-						currentBot = 0;
+						selected[0]=!selected[0];
+						currentBot=0;
 					}
 					GUI.DrawTexture(new Rect(Screen.width/2+selectorGap/2,Screen.height/2-selectorSize-selectorGap/2,selectorSize,selectorSize),ButtonBackground[6]);
 					if(GUI.Button(new Rect(Screen.width/2+selectorGap/2,Screen.height/2-selectorSize-selectorGap/2,selectorSize,selectorSize),""))
 					{
-						currentBot = 1;
+						selected[1]=!selected[1];
+						if (currentBot>1){currentBot=1;}
 					}
 					GUI.DrawTexture(new Rect(Screen.width/2-selectorSize-selectorGap/2,Screen.height/2+selectorGap/2,selectorSize,selectorSize),ButtonBackground[7]);
 					if(GUI.Button(new Rect(Screen.width/2-selectorSize-selectorGap/2,Screen.height/2+selectorGap/2,selectorSize,selectorSize),""))
 					{
-						currentBot = 3;
+						selected[3]=!selected[3];
+						if (currentBot==2){currentBot=3;}
 					}
 					GUI.DrawTexture(new Rect(Screen.width/2+selectorGap/2,Screen.height/2+selectorGap/2,selectorSize,selectorSize),ButtonBackground[8]);
 					if(GUI.Button(new Rect(Screen.width/2+selectorGap/2,Screen.height/2+selectorGap/2,selectorSize,selectorSize),""))
 					{
-						currentBot = 2;
+						selected[2]=!selected[2];
 					}
 
 					Skins[0].label.fontSize=Mathf.RoundToInt(Screen.height*0.075f);
@@ -234,9 +239,15 @@ public class NetworkScript : MonoBehaviour {
 					Skins[0].label.fontSize=Mathf.RoundToInt(Screen.height*0.04f);
 
 					GUI.DrawTexture(new Rect(Screen.width-(selectorSize+selectorGap/2),Screen.height-(selectorSize+selectorGap/2),selectorSize,selectorSize),ButtonBackground[4]);
+
 					if(GUI.Button(new Rect(Screen.width-(selectorSize+selectorGap/2),Screen.height-(selectorSize+selectorGap/2),selectorSize,selectorSize),"Confirm"))
-						//Start the level and move to midi sequencer
-						networkView.RPC("setLevel", RPCMode.AllBuffered, 1);
+					{	
+						if (selected[0]||selected[1]||selected[2]||selected[3])
+						{
+							//Start the level and move to midi sequencer
+							networkView.RPC("setLevel", RPCMode.AllBuffered, 1);
+						}
+					}
 				}
 				//Sequencer menu
 				else{
@@ -332,22 +343,22 @@ public class NetworkScript : MonoBehaviour {
 					}
 					//Show each bot and allow the user to change between them
 					GUI.DrawTexture(new Rect(Screen.width/2-buttonSize-gap/2,Screen.height-(buttonSize+gap)*2+0.5f*gap,buttonSize,buttonSize),ButtonBackground[5]);
-					if(GUI.Button(new Rect(Screen.width/2-buttonSize-gap/2,Screen.height-(buttonSize+gap)*2+0.5f*gap,buttonSize,buttonSize),""))
+					if(GUI.Button(new Rect(Screen.width/2-buttonSize-gap/2,Screen.height-(buttonSize+gap)*2+0.5f*gap,buttonSize,buttonSize),"")&&selected[0])
 					{
 						currentBot = 0;
 					}
 					GUI.DrawTexture(new Rect(Screen.width/2+gap/2,Screen.height-(buttonSize+gap)*2+0.5f*gap,buttonSize,buttonSize),ButtonBackground[6]);
-					if(GUI.Button(new Rect(Screen.width/2+gap/2,Screen.height-(buttonSize+gap)*2+0.5f*gap,buttonSize,buttonSize),""))
+					if(GUI.Button(new Rect(Screen.width/2+gap/2,Screen.height-(buttonSize+gap)*2+0.5f*gap,buttonSize,buttonSize),"")&&selected[1])
 					{
 						currentBot = 1;
 					}
 					GUI.DrawTexture(new Rect(Screen.width/2-buttonSize-gap/2,Screen.height-buttonSize-0.5f*gap,buttonSize,buttonSize),ButtonBackground[7]);
-					if(GUI.Button(new Rect(Screen.width/2-buttonSize-gap/2,Screen.height-buttonSize-0.5f*gap,buttonSize,buttonSize),""))
+					if(GUI.Button(new Rect(Screen.width/2-buttonSize-gap/2,Screen.height-buttonSize-0.5f*gap,buttonSize,buttonSize),"")&&selected[3])
 					{
 						currentBot = 3;
 					}
 					GUI.DrawTexture(new Rect(Screen.width/2+gap/2,Screen.height-buttonSize-0.5f*gap,buttonSize,buttonSize),ButtonBackground[8]);
-					if(GUI.Button(new Rect(Screen.width/2+gap/2,Screen.height-buttonSize-0.5f*gap,buttonSize,buttonSize),""))
+					if(GUI.Button(new Rect(Screen.width/2+gap/2,Screen.height-buttonSize-0.5f*gap,buttonSize,buttonSize),"")&&selected[2])
 					{
 						currentBot = 2;
 					}
